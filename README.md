@@ -59,6 +59,38 @@ This is an updated fork of [Inline QRCode](http://techlister.com/plugins-2/qrcod
 4. Enable module, default config works fine, or visit IQRCodes page to fine tune.
 5. Have fun!
 
+## QR cache endpoint
+
+The `/qrchk` helper accepts POST requests with `action=qrchk` and a string `data`
+containing an existing short URL under the configured `YOURLS_SITE` (including
+its base path). Missing or malformed fields and foreign-site URLs return 400;
+unknown keywords return 404; other request methods return 405 with `Allow: POST`.
+Unsupported configured image formats return 503. Successful checks keep the
+existing empty 200 response expected by the JavaScript client.
+
+This endpoint remains usable from public share pages, without an admin login.
+It can only generate QR images for existing links in this installation. It does
+not fetch submitted URLs or act as a general-purpose QR generator. Input is used
+exactly as form-decoded by PHP so cache hashes agree with the JavaScript client.
+
+## Tests
+
+Run the request regression tests without a database or image dependencies:
+
+```sh
+php tests/qrchk.php
+```
+
+With PHP GD available, also check real PNG, JPEG, and SVG output and cache reuse:
+
+```sh
+php tests/qr-images.php
+```
+
+The tests use temporary cache directories and do not modify the plugin cache.
+The request tests substitute database lookups and the encoder; the image tests
+use the bundled encoder with a fixture for the YOURLS settings and keyword lookup.
+
 ### Hint:
 Want to embed these QR codes into a worpress widget? Check out [this gist](https://gist.github.com/joshp23/3f990e6ec36e24ba53985968bbfa89f1)
 ### Note: 
